@@ -14,7 +14,9 @@ https://glitch.com/edit/#!/your-first-webgpu-app
 
 https://your-first-webgpu-app.glitch.me/
 
-gpu --> adapter --> device --> canvas format and context config --> encoder
+WebGPU Shading Language (WGSL): https://gpuweb.github.io/gpuweb/wgsl/
+
+gpu --> adapter --> device --> canvas format and context config --> encoder --> ...
 
 ```js
 const adapter = await navigator.gpu?.requestAdapter();
@@ -27,4 +29,5 @@ canvas.getContext("...").configure({
 const encoder = device?.createCommandEncoder();
 // encoder.beginRenderPass
 // context.getCurrentTexture
+// ... see index.html
 ```

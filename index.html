@@ -48,6 +48,60 @@
       const commandBuffer = encoder.finish(); // finish command buffer
 
       device.queue.submit([commandBuffer]); // submit command buffer
+
+      const vertices = new Float32Array([
+        // (x,y), (x,y), (x,y), (x,y),...
+        -0.8,
+        -0.8, // Triangle 1 (Blue)
+        0.8,
+        -0.8,
+        0.8,
+        0.8,
+
+        -0.8,
+        -0.8, // Triangle 2 (Red)
+        0.8,
+        0.8,
+        -0.8,
+        0.8,
+      ]); // consider Index Buffers for more complex geometry
+
+      const vertexBuffer = device.createBuffer({
+        label: "Cell vertices", // label is helpful for error messages
+        size: vertices.byteLength,
+        usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+        // GPUBufferUsage.VERTEX = buffer to be used for vertex data
+        // GPUBufferUsage.COPY_DST = able to copy data into buffer
+      });
+
+      device.queue.writeBuffer(vertexBuffer, /*bufferOffset=*/ 0, vertices);
+
+      const vertexBufferLayout = {
+        arrayStride: 8, // stride to get to next pair of coordinates (32 bits * 2 = 64 bits = 8 bytes)
+        attributes: [
+          {
+            format: "float32x2",
+            offset: 0, // start offset, before next stride
+            shaderLocation: 0, // 0-15
+            // Position, see vertex shader
+            // other options for colour, direction, etc.
+          },
+        ],
+      };
+
+      const cellShaderModule = device.createShaderModule({
+        label: "Cell shader",
+        // Your WGSL shader code will go here:
+        code: `
+@vertex
+fn vertexMain(@location(0) pos: vec2f) ->
+  @builtin(position) vec4f {
+  return vec4f(pos, 0, 1);
+}
+        `,
+      });
+
+      // continue at: https://codelabs.developers.google.com/your-first-webgpu-app#3
     </script>
   </body>
 </html>
