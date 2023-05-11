@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>WebGPU Life</title>
+  </head>
+  <body>
+    <canvas width="512" height="512"></canvas>
+    <script type="module">
+      // type="module" enables top-level await
+
+      const canUseWebGPU = navigator.gpu;
+      if (!canUseWebGPU) {
+        throw new Error("WebGPU not supported on this browser.");
+      }
+
+      const adapter = await navigator.gpu.requestAdapter(); // "low-power" or "high-performance" - https://gpuweb.github.io/gpuweb/#adapter-selection
+      if (!adapter) {
+        throw new Error("No appropriate GPUAdapter found.");
+      }
+
+      const device = await adapter.requestDevice(); // options: https://gpuweb.github.io/gpuweb/#gpudevicedescriptor
+
+      const canvas = document.querySelector("canvas");
+      const context = canvas.getContext("webgpu");
+      const canvasFormat = navigator.gpu.getPreferredCanvasFormat();
+      context.configure({
+        device: device,
+        format: canvasFormat,
+      });
+
+      const encoder = device.createCommandEncoder();
+
+      const pass = encoder.beginRenderPass({
+        colorAttachments: [
+          {
+            view: context.getCurrentTexture().createView(),
+            loadOp: "clear",
+            clearValue: { r: 0, g: 0, b: 0.4, a: 1 }, // New line
+            storeOp: "store",
+          },
+        ],
+      });
+
+      pass.end();
+
+      const commandBuffer = encoder.finish(); // finish command buffer
+
+      device.queue.submit([commandBuffer]); // submit command buffer
+    </script>
+  </body>
+</html>
